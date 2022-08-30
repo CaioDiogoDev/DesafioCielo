@@ -3,7 +3,7 @@
     public class Transacao
     {
         public decimal? ValorLiquido { get; set; }
-        public string ResponseM { get; set; }
+        public string Mensagem { get; set; }
 
     }  
 }

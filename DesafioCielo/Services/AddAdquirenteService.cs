@@ -42,26 +42,39 @@ namespace DesafioCielo.Services
             var listaAdquirentes = CreateAquirente();
 
             Transacao transacao = new();
-            
-           
+
+
             try
             {
-                if (adquirenteDto.Nome != "")
+                var adquirenteCalc = listaAdquirentes.Find(x => x.Adquirente.ToLower().EndsWith(adquirenteDto.Adquirente.ToLower()));
+
+
+                if (adquirenteCalc != null)  
                 {
-                    var adquirenteCalc = listaAdquirentes.Find(x => x.Adquirente.ToLower().EndsWith(adquirenteDto.Nome.ToLower()));
-
                     var taxa = adquirenteCalc.Taxas.Find(x => x.Bandeira.ToLower().Equals(adquirenteDto.Bandeira.ToLower()));
+                    if (taxa == null)
+                    {
+                        transacao.ValorLiquido = 0;
+                        transacao.Mensagem = "Bandeira não encontrada!";
+                        return transacao;
+                    }
 
-                    decimal? valorLiquido = adquirenteDto.Valor - (adquirenteDto.Valor * (adquirenteDto.Tipo.ToLower().Equals("credito") ? taxa.Credito / 100 : taxa.Debito / 100));
+                    if (adquirenteDto.Tipo.ToLower() != "credito" && adquirenteDto.Tipo.ToLower() != "debito")
+                    {
+                        transacao.ValorLiquido = 0;
+                        transacao.Mensagem = "Forma de pagamento não encontrada!";
+                        return transacao;
+                    }
+
+                    decimal? valorLiquido = adquirenteDto.Valor - ObterTaxa(adquirenteDto.Tipo, taxa);
 
                     transacao.ValorLiquido = valorLiquido;
-
-                    transacao.ResponseM = "Calculo realizado com sucesso!";
+                    transacao.Mensagem = "Transação realizada com sucesso!";
                 }
                 else
                 {
-                    transacao.ValorLiquido = 0; 
-                    transacao.ResponseM = "Adquirente não encontrado!";
+                    transacao.ValorLiquido = 0;
+                    transacao.Mensagem = "Adquirente não encontrado!";
                 }
             }
             catch (Exception ex)
@@ -69,6 +82,14 @@ namespace DesafioCielo.Services
                 Console.WriteLine(ex.Message);
             }
             return transacao;
+        }
+
+        private decimal ObterTaxa(string tipo, Taxa taxa)
+        {
+            if (tipo.ToLower() != "credito")
+                return taxa.Credito / 100;
+
+            return taxa.Debito / 100;
         }
         #endregion 
     }
