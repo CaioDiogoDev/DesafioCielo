@@ -1,60 +1,75 @@
 ﻿using DesafioCielo.Interface;
 using DesafioCielo.Models;
-using teste.Models;
+using DesafioCielo.Models.Dto;
+
 
 namespace DesafioCielo.Services
 {
     public class AddAdquirenteService : IAddAdquirenteService
     {
-        public List<Adquirente> ListaAdquirentes = new();
-        public List<Adquirente> CreateAquirente()
+        #region Cria Adquirentes 
+        public List<AdquirenteM> ListaAdquirentes = new();
+        public List<AdquirenteM> CreateAquirente()
         {
-            
-
-            ListaAdquirentes.Add(new Adquirente
-
+            ListaAdquirentes.Add(new AdquirenteM
             {
-
-               
-                Nome = "Adquirente A",
+                Adquirente = "Adquirente A",
                 Taxas = new List<Taxa> {new Taxa {Bandeira = "Visa", Credito = 2.25M,
                 Debito = 2.00M } ,new Taxa{Bandeira ="Master",Credito = 2.35M, Debito = 1.98M}}
             });
 
-            ListaAdquirentes.Add(new Adquirente
+            ListaAdquirentes.Add(new AdquirenteM
             {
-                
-                Nome = "Adquirente B",
+                Adquirente = "Adquirente B",
                 Taxas = new List<Taxa> {new Taxa {Bandeira = "Visa", Credito = 2.50M,
                 Debito = 2.08M } ,new Taxa{Bandeira ="Master",Credito = 2.65M, Debito = 1.75M}}
             });
 
-            ListaAdquirentes.Add(new Adquirente
+            ListaAdquirentes.Add(new AdquirenteM
             {
-                
-                Nome = "Adquirente C",
+                Adquirente = "Adquirente C",
                 Taxas = new List<Taxa> {new Taxa {Bandeira = "Visa", Credito = 2.75M,
                 Debito = 2.16M } ,new Taxa{Bandeira ="Master",Credito = 3.10M, Debito = 1.58M}}
             });
 
             return ListaAdquirentes;
         }
+        #endregion
 
-        public Transacao CalculaTransacao(Adquirente adquirente)
+        #region Calcula Transacao 
+        public Transacao CalculaTransacao(AdquirenteM adquirentes, AdquirenteDto adquirenteDto)
         {
-            var adquirenteCalc = ListaAdquirentes.Find(x => x.Nome.ToLower().EndsWith(adquirente.Nome.ToLower()));
-            var taxa = adquirenteCalc.Taxas.Find(x => x.Bandeira.ToLower().Equals(adquirente.Bandeira.ToLower()));
-          
-            decimal? valorLiquido = adquirente.Valor - (adquirente.Valor * (adquirente.Tipo.ToLower().Equals("credito") ? taxa.Credito : taxa.Debito));
+            var listaAdquirentes = CreateAquirente();
 
             Transacao transacao = new();
-            transacao.ValorLiquido = valorLiquido;
+            
+           
+            try
+            {
+                if (adquirenteDto.Nome != "")
+                {
+                    var adquirenteCalc = listaAdquirentes.Find(x => x.Adquirente.ToLower().EndsWith(adquirenteDto.Nome.ToLower()));
 
+                    var taxa = adquirenteCalc.Taxas.Find(x => x.Bandeira.ToLower().Equals(adquirenteDto.Bandeira.ToLower()));
+
+                    decimal? valorLiquido = adquirenteDto.Valor - (adquirenteDto.Valor * (adquirenteDto.Tipo.ToLower().Equals("credito") ? taxa.Credito / 100 : taxa.Debito / 100));
+
+                    transacao.ValorLiquido = valorLiquido;
+
+                    transacao.ResponseM = "Calculo realizado com sucesso!";
+                }
+                else
+                {
+                    transacao.ValorLiquido = 0; 
+                    transacao.ResponseM = "Adquirente não encontrado!";
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
             return transacao;
-
-
         }
+        #endregion 
     }
-
-
 }

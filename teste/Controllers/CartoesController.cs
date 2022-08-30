@@ -1,41 +1,36 @@
+using DesafioCielo.Interface;
 using DesafioCielo.Models;
-using DesafioCielo.Services;
+using DesafioCielo.Models.Dto;
 using Microsoft.AspNetCore.Mvc;
-using teste.Models;
 
-namespace teste.Controllers
+
+namespace DesafioCielo.Controller
 {
     [ApiController]
     [Route("[controller]")]
     public class CartoesController : ControllerBase
     {
+        private readonly IAddAdquirenteService _addAdquirenteService;
 
-        private readonly AddAdquirenteService _addAdquirenteService;
-
-        public CartoesController(AddAdquirenteService addAdquirenteService)
+        public CartoesController(IAddAdquirenteService addAdquirenteService)
         {
             _addAdquirenteService = addAdquirenteService;
-
         }
 
-        [HttpGet(Name = "/mdr")]
-        public ActionResult<Adquirente> Get()
+        [HttpGet("/mdr")]
+        public ActionResult<AdquirenteM> Get()
         {
-
-
             var createAdquirente = _addAdquirenteService.CreateAquirente();
 
             return Ok(createAdquirente);
-
         }
 
-        [HttpPost(Name = "/transaction")]
-
-        public ActionResult<Transacao> Post([FromBody] Adquirente adquirente)
+        [HttpPost("/transaction")]
+        public ActionResult<Transacao> Post([FromBody] AdquirenteDto adquirenteDto)
         {
-            var transacao = _addAdquirenteService.CalculaTransacao(adquirente);
+            AdquirenteM adquirentes = new ();
+            var transacao = _addAdquirenteService.CalculaTransacao(adquirentes, adquirenteDto);
             return Ok(transacao);
         }
-
     }
 }

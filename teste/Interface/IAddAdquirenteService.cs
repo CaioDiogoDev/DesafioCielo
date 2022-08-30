@@ -1,11 +1,11 @@
 ﻿using DesafioCielo.Models;
-using teste.Models;
+using DesafioCielo.Models.Dto;
 
 namespace DesafioCielo.Interface
 {
     public interface IAddAdquirenteService
     {
-        List<Adquirente> CreateAquirente();
-        Transacao CalculaTransacao(Adquirente adquirente);
+        List<AdquirenteM> CreateAquirente();
+        Transacao CalculaTransacao(AdquirenteM adquirentes, AdquirenteDto adquirenteDto);
     }
 }
