@@ -1,7 +1,7 @@
 ﻿using DesafioCielo.Interface;
 using DesafioCielo.Models;
 using DesafioCielo.Models.Dto;
-
+using System.Globalization;
 
 namespace DesafioCielo.Services
 {
@@ -49,7 +49,7 @@ namespace DesafioCielo.Services
                 var adquirenteCalc = listaAdquirentes.Find(x => x.Adquirente.ToLower().EndsWith(adquirenteDto.Adquirente.ToLower()));
 
 
-                if (adquirenteCalc != null)  
+                if (adquirenteCalc != null)
                 {
                     var taxa = adquirenteCalc.Taxas.Find(x => x.Bandeira.ToLower().Equals(adquirenteDto.Bandeira.ToLower()));
                     if (taxa == null)
@@ -65,10 +65,11 @@ namespace DesafioCielo.Services
                         transacao.Mensagem = "Forma de pagamento não encontrada!";
                         return transacao;
                     }
+                   
+                    decimal? valorLiquido = adquirenteDto.Valor - ObterTaxa(adquirenteDto.Tipo, taxa, adquirenteDto.Valor);
 
-                    decimal? valorLiquido = adquirenteDto.Valor - ObterTaxa(adquirenteDto.Tipo, taxa);
-
-                    transacao.ValorLiquido = valorLiquido;
+                    transacao.ValorLiquido = Math.Round((decimal)valorLiquido, 2); 
+                  
                     transacao.Mensagem = "Transação realizada com sucesso!";
                 }
                 else
@@ -84,13 +85,11 @@ namespace DesafioCielo.Services
             return transacao;
         }
 
-        private decimal ObterTaxa(string tipo, Taxa taxa)
-        {
-            if (tipo.ToLower() != "credito")
-                return taxa.Credito / 100;
-
-            return taxa.Debito / 100;
+        private decimal ObterTaxa(string tipo, Taxa taxa, decimal? valor)
+        { 
+            return tipo.ToLower() == "credito"  ? (decimal)((taxa.Credito * valor) / 100) : (decimal)((taxa.Debito * valor) / 100);
         }
+          
         #endregion 
     }
 }
