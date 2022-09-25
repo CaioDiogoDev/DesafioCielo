@@ -28,8 +28,12 @@ namespace DesafioCielo.Controller
         [HttpPost("/transaction")]
         public ActionResult<Transacao> Post([FromBody] AdquirenteDto adquirenteDto)
         {
-            AdquirenteM adquirentes = new ();
+            AdquirenteM adquirentes = new();
             var transacao = _addAdquirenteService.CalculaTransacao(adquirentes, adquirenteDto);
+
+            if (transacao.ValorLiquido == 0)
+                return BadRequest(transacao.Mensagem);
+
             return Ok(transacao);
         }
     }
